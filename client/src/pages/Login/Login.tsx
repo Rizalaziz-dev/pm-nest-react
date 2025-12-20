@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
 
 
-import Card from "../../components/Card/Card";
-import Button from "../../components/Button/Button";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
 import { loginScheme, LoginFormData } from "../../schemas/login.schemas";
 import { EmailInput } from "./EmailInput";
 import { PasswordInput } from "./Passworinput";

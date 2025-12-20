@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import Input from "../../components/Input/Input";
+import Input from "../../components/ui/Input";
 import { LoginFormData } from "../../schemas/login.schemas";
 
 export function EmailInput() {

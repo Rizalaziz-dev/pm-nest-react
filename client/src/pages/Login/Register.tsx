@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { registerScheme, RegisterFormData } from "../../schemas/register.schemas";
-import Card from "../../components/Card/Card";
-import Button from "../../components/Button/Button";
-import Input from "../../components/Input/Input";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 import { Link } from "react-router";
 
 export default function Register() {
