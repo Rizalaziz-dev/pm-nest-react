@@ -1,0 +1,13 @@
+.login-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f3f4f6;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #111827;
+  text-align: center;}
