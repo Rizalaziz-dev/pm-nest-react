@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
 
@@ -11,16 +11,12 @@ import { EmailInput } from "../components/EmailInput";
 import { PasswordInput } from "../components/PasswordInput";
 
 
-type LoginFormProps ={
+type LoginFormProps = {
     onSubmit: (data: LoginFormData) => Promise<void> | void;
+    methods: UseFormReturn<LoginFormData>;
 }
-export default function LoginForm({ onSubmit }: LoginFormProps ) {
-
-  const methods = useForm<LoginFormData>({
-    resolver: zodResolver(loginScheme),
-    mode: "onSubmit",
-  });
-
+export default function LoginForm({ onSubmit, methods }: LoginFormProps ) {
+ 
   // await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return (

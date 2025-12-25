@@ -22,18 +22,27 @@ export async function aptFetch<T>(
         headers,
     })
 
-    // handle errors
+    // Smart Error Handling
     if (!response.ok) {
-        // if the backend says 401, the token is likely expired or invalid
-        if(response.status === 401){
-            localStorage.removeItem('token');
-            // the web will redirect to login
-            window.location.href = '/login'
-        }
+        let errorMessage = 'API Request Failed'
 
-        // Try to get the error message from the backend (NestJS sends {message: "..."}) 
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'API Request Failed');
+        try{
+            // Catch the error from Nest JS as a JSON object in the Body
+            const errorData = await response.json();
+
+            // Check for the object as an array  or one line string 
+            errorMessage = Array.isArray(errorData.message)
+                // Grab the data as an array
+                ? errorData.message[0]
+                // If the data as a string it grab to not a problem
+                : errorData.message;
+
+        // Handle, if it's not a JSON
+        } catch (parseError) {
+            errorMessage = response.statusText || errorMessage
+        }
+        // Send the error message to tanstack 
+        throw new Error(errorMessage)
     }
 
     return response.json() as Promise<T>;

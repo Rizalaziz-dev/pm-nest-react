@@ -12,20 +12,6 @@ async function loginRequest(data: LoginFormData){
         body: JSON.stringify(data),
     })
     }
-//     const response = await fetch("", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type" : "application/json",
-//         },
-//         body: JSON.stringify(data)
-//     });
-
-//     if (!response.ok) {
-//         throw new Error("User Not Found")
-//     }
-
-//     return response.json();
-// }
 
 export function useLogin(){
     const navigate = useNavigate();
@@ -36,13 +22,16 @@ export function useLogin(){
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
             navigate("/admin/users")
+        },
+        onError: (err: any) => {
+            console.log("Hook caught error:", err.message);
         }
     });
 
     return {
         login: mutation.mutateAsync,
         isLoading: mutation.isPending,
-        error: mutation.error as Error | null
+        error: mutation.error 
     }
 }
 

@@ -18,20 +18,19 @@ export class AuthService {
       where: { email: dto.email },
     });
 
+    // Show message "User not found"
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-      console.log('User from DB:', dto.email);
+      throw new UnauthorizedException('This email is not registered');
     }
 
     const isValid = await bcrypt.compare(dto.password, user.password);
+    
+    // show message "Wrong password"
     if (!isValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Incorrect password');
     }
 
     return {
-      // accessToken: this.jwt.sign({
-      //   sub: user.id,
-      //   role: user.role,
       token: this.jwt.sign({ sub: user.id, role: user.role }),
       user: {
       id: user.id,
@@ -55,5 +54,5 @@ export class AuthService {
       },
     });
   }
-}import { Prisma } from '@prisma/client';
+}
 
