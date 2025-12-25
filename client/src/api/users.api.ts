@@ -21,7 +21,7 @@ export const updateUser = (user: User) => {
     });
 }
 
-export const deleteUser = (id: number) => {
+export const deleteUser = (id: string) => {
     return aptFetch<void>(`/users/${id}`, {
         method: 'DELETE',
     });

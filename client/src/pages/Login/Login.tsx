@@ -6,9 +6,9 @@ import { Link } from "react-router-dom";
 
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
-import { loginScheme, LoginFormData } from "../../schemas/login.schemas";
-import { EmailInput } from "./EmailInput";
-import { PasswordInput } from "./Passworinput";
+import { loginScheme, LoginFormData } from "../../features/auth/schemas/login.schemas";;
+import { EmailInput } from "../../features/auth/components/EmailInput";
+import { PasswordInput } from "../../features/auth/components/Passworinput";
 
 
 

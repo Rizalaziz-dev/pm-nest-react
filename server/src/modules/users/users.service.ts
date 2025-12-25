@@ -4,6 +4,8 @@ import { CreateUsersDto } from './dto/create-user.dto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { promises } from 'dns';
+import { UserRole } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +18,8 @@ constructor(private readonly prisma: PrismaService) {}
      data: {
         name:dto.name,
         email:dto.email,
-        password: hashedPassword
+        password: hashedPassword,
+        role: UserRole.USER,
      },
     //  select: {
     //    id: true,
@@ -30,7 +33,7 @@ constructor(private readonly prisma: PrismaService) {}
     return await this.prisma.user.findMany();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string){
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -41,11 +44,14 @@ constructor(private readonly prisma: PrismaService) {}
     return user;
   }
 
-  update(id: number) {
-    return `This action updates a #${id} user`;
+  update(id: string, dto:UpdateUserDto) {
+    return this.prisma.user.update({
+      where: {id},
+      data: dto
+    });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} user`;
   }
 }

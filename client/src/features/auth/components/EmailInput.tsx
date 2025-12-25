@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
-import Input from "../../components/ui/Input";
-import { LoginFormData } from "../../schemas/login.schemas";
+import Input from "../../../components/ui/Input";
+import { LoginFormData } from "../schemas/login.schemas";
 
 export function EmailInput() {
     const {

@@ -12,10 +12,16 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
-  id    Int     @id @default(autoincrement())
+  id    String     @id @default(cuid(2))
   name  String
   email String  @unique
   password String
+  role String
   createdAt DateTime @default(now())
 }

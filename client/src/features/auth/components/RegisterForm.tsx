@@ -1,25 +1,24 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { registerScheme, RegisterFormData } from "../../features/auth/schemas/register.schemas";
-import Card from "../../components/ui/Card";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import Input from "../../../components/ui/Input";
 import { Link } from "react-router";
+import { useForm } from "react-hook-form";
+import { RegisterFormData, registerScheme } from "../schemas/register.schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export default function Register() {
+interface Props {
+    onSubmit: (users: RegisterFormData) => void
+}
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<RegisterFormData>({
-        resolver: zodResolver(registerScheme),
-    });
-    
-    const onSubmit = (data: RegisterFormData) => {
-        console.log("Form Data:", data);
-    };
-
+export default function RegisterForm({ onSubmit }: Props){
+        const {
+            register,
+            handleSubmit,
+            formState: { errors },
+        } = useForm<RegisterFormData>({
+            resolver: zodResolver(registerScheme),
+        });
+        
     return (
         <div className="grid place-items-center h-screen">
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -41,22 +40,22 @@ export default function Register() {
                     <h2 className="text-3xl font-bold mb-2">Register</h2>
                     </div>
                     <Input
-                        label="First Name"
+                        label="Full Name"
                         type="text"
-                        {...register("firstName")}
-                        error={errors.firstName?.message}
-                        />
-                        <Input
-                        label="Last Name"
-                        type="text"
-                        {...register("lastName")}
-                        error={errors.lastName?.message}
+                        {...register("name")}
+                        error={errors.name?.message}
                         />
                         <Input
                         label="Email"
                         type="email"
                         {...register("email")}
                         error={errors.email?.message}
+                        />
+                        <Input
+                        label="Role"
+                        type="text"
+                        {...register("role")}
+                        error={errors.role?.message}
                         />
                         <Input
                         label="Password"

@@ -4,7 +4,7 @@ import { User } from "../types/user.types"
 interface Props {
     users: User[]
     onEdit: (user: User) => void
-    onDelete: (id: number) => void
+    onDelete: (id: string) => void
     // onCreate: (users: CreatUserDto) => void
 }
 
@@ -29,8 +29,12 @@ export function UsersTable({ users, onEdit, onDelete }: Props) {
                 <td>{user.email}</td>
                 <td>{user.password}</td>
                 <td>
-                <button className="btn btn-xs btn-primary">Edit</button>
-                <button className="btn btn-xs btn-danger ml-2">Delete</button>  
+                {/* <button 
+                className="btn btn-xs btn-primary" 
+                onClick = { () => onEdit=(user)}>Edit</button> */}
+                <button 
+                className="btn btn-xs btn-danger ml-2"
+                onClick = {() => onDelete(user.id)}>Delete</button>  
                 </td>             
               </tr>
             ))}                      
