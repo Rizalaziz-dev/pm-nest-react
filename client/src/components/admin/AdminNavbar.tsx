@@ -1,6 +1,10 @@
+import { Link } from "react-router";
+import { useLogout } from "../../features/auth/hooks/useLogout";
 
 
 export default function AdminNavbar() {
+    const { logout } = useLogout();
+    const isLoggedIn = !!localStorage.getItem("token")
     return (
    <div className="navbar bg-base-100 shadow-sm">
         <div className="flex-none">
@@ -12,9 +16,17 @@ export default function AdminNavbar() {
             <a className="btn btn-ghost text-xl">scheduleProject</a>
         </div>
         <div className="flex-none">
-            <button className="btn btn-square btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-5 w-5 stroke-current"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path> </svg>
+            {isLoggedIn ?(
+            <button 
+            onClick = {logout}
+            className="h-8 w-8 mr-2 mb-2 hover:text-gray-600 cursor-pointer"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"> <path d="M569 337C578.4 327.6 578.4 312.4 569 303.1L425 159C418.1 152.1 407.8 150.1 398.8 153.8C389.8 157.5 384 166.3 384 176L384 256L272 256C245.5 256 224 277.5 224 304L224 336C224 362.5 245.5 384 272 384L384 384L384 464C384 473.7 389.8 482.5 398.8 486.2C407.8 489.9 418.1 487.9 425 481L569 337zM224 160C241.7 160 256 145.7 256 128C256 110.3 241.7 96 224 96L160 96C107 96 64 139 64 192L64 448C64 501 107 544 160 544L224 544C241.7 544 256 529.7 256 512C256 494.3 241.7 480 224 480L160 480C142.3 480 128 465.7 128 448L128 192C128 174.3 142.3 160 160 160L224 160z"/></svg>
             </button>
+
+            ):(
+                <Link to="/login"  className="btn btn-square btn-ghost">login</Link>
+            )}
         </div>
     </div>        
 )

@@ -1,11 +1,11 @@
+// Login Page works to talk to the server and handle business logic (is the user allowed in?)
+// Smart(Container)
+
 import { useForm } from "react-hook-form";
 import LoginForm from "../components/LoginForm";
 import { useLogin } from "../hooks/useLogin";
 import { LoginFormData, loginScheme } from "../schemas/login.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-
-
 
 export default function LoginPage() {
     const { login, isLoading, error } = useLogin();

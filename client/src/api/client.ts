@@ -24,6 +24,16 @@ export async function aptFetch<T>(
 
     // Smart Error Handling
     if (!response.ok) {
+        // --- START INTEGRATION ---
+        if (response.status === 401) {
+            // 1. Wipe the dead token
+            localStorage.removeItem('token');
+
+            // 2. Redirect to login (Full page reload is safest here)
+            // This ensures all React state is wiped clean
+            window.location.href = '/login'; 
+        }
+        // --- END INTEGRATION ---
         let errorMessage = 'API Request Failed'
 
         try{

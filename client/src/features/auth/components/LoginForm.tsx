@@ -1,12 +1,13 @@
-import { useState } from "react";
+// Login Forms works just to collect data and validate formats (is the email an email?) 
+// Keep the login form "dumb" Presentational.
+
 import { FormProvider, useForm, UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
 
 
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
-import { loginScheme, LoginFormData } from "../schemas/login.schemas";
+import { LoginFormData } from "../schemas/login.schemas";
 import { EmailInput } from "../components/EmailInput";
 import { PasswordInput } from "../components/PasswordInput";
 
