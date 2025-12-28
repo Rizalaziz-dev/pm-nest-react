@@ -44,14 +44,32 @@ constructor(private readonly prisma: PrismaService) {}
     return user;
   }
 
-  update(id: string, dto:UpdateUserDto) {
-    return this.prisma.user.update({
-      where: {id},
-      data: dto
-    });
+  async update(id: string, dto:UpdateUserDto) {
+    const data: any = { 
+    name: dto.name, 
+    email: dto.email, 
+    role: dto.role 
+  };
+
+  // Only hash and update password if the user actually typed a new one
+  if (dto.password && dto.password.length > 0) {
+    data.password = await bcrypt.hash(dto.password, 10);
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  return this.prisma.user.update({
+    where: { id },
+    data: data
+  });
+  }
+
+  async remove(id: string) {
+    try {
+      return await this.prisma.user.delete({
+      where: { id:id } 
+    })
+    } catch (error) {
+      throw new NotFoundException(`User with ID ${id} could not be found`)
+    }
+    
   }
 }

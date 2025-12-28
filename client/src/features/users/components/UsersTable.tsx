@@ -29,9 +29,9 @@ export function UsersTable({ users, onEdit, onDelete }: Props) {
                 <td>{user.email}</td>
                 <td>{user.password}</td>
                 <td>
-                {/* <button 
+                <button 
                 className="btn btn-xs btn-primary" 
-                onClick = { () => onEdit=(user)}>Edit</button> */}
+                onClick = { () => onEdit(user)}>Edit</button>
                 <button 
                 className="btn btn-xs btn-danger ml-2"
                 onClick = {() => onDelete(user.id)}>Delete</button>  

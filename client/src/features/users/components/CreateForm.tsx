@@ -1,21 +1,38 @@
 import { useForm } from "react-hook-form";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
-import { RegisterFormData, registerScheme } from "../../auth/schemas/register.schemas";
+import { RegisterFormData, registerScheme, userCoreSchema } from "../../auth/schemas/register.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import z from "zod";
 
 interface Props {
     onSubmit: (users: RegisterFormData) => void
+    initialData?: z.infer<typeof userCoreSchema> | null;
 }
 
-export default function CreateForm({onSubmit}: Props) {
+export default function CreateForm({onSubmit, initialData}: Props) {
     const {
         register,
         handleSubmit,
+        reset,
         formState: { errors },
         } = useForm<RegisterFormData>({
         resolver: zodResolver(registerScheme),
+        defaultValues: initialData || {},
         });
+
+        useEffect(() => {
+            if (initialData) {
+                reset({
+                    ...initialData,
+                    password: "",
+                    confirmPassword: ""
+                });
+            }
+        }, [initialData, reset])
+
+
     return (
         <>
         <form 

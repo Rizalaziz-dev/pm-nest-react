@@ -1,3 +1,5 @@
+import { RegisterFormData } from "../../auth/schemas/register.schemas";
+
 export interface User {
   id: string;
   name: string;
@@ -5,3 +7,5 @@ export interface User {
   password: string;
   role: string;
 }
+
+export type UserFormData = RegisterFormData;

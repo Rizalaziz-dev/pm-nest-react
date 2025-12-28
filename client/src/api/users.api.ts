@@ -15,8 +15,9 @@ export const getUsers = () => {
 }
 
 export const updateUser = (user: User) => {
+    
     return aptFetch<User>(`/users/${user.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         body: JSON.stringify(user),
     });
 }

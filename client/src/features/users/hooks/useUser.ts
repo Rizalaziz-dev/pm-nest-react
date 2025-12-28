@@ -18,7 +18,7 @@ export function useUser() {
         },
     })
 
-    const editUserMutation = useMutation({
+    const updateUserMutation = useMutation({
         mutationFn: updateUser,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -36,7 +36,7 @@ export function useUser() {
     return {
         ...usersQuery,
         createUser: createUserMutation.mutate,
-        editUser: editUserMutation.mutate,
+        updateUser: updateUserMutation.mutate,
         deleteUser: deleteUserMutation.mutate,
     }
 
