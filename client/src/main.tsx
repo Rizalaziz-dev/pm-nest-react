@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import './index.css'
 import { router } from './router'
+import { ToastConfig } from './components/ui/ToastConfig'
 
 
 
@@ -27,6 +28,7 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
+    <ToastConfig />
       <RouterProvider router={router}/>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

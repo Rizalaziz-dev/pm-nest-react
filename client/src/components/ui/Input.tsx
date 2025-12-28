@@ -11,11 +11,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>
 (({ label, error, className, ...props }, ref) => {
   return (
     <div>
-    <div className="input my-1">
-      <span className="label">{label}</span>
-      <input ref={ref} {...props} />
-    </div>
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">{label}</legend>
+      <input className="input w-full" ref={ref} {...props} />
       {error && <p className="text-red-500">{error}</p>} 
+    </fieldset>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { aptFetch } from "./client";
 export type CreateUserDTO = Omit<User, 'id'>;
 
 export const createUser = (newUser: CreateUserDTO) => {
-    return aptFetch<User>('/users', {
+    return aptFetch<User>('/users/user', {
         method: 'POST',
         body: JSON.stringify(newUser),
     })
