@@ -55,11 +55,12 @@ enum ProductionStage {
 }
 
 enum WorkOrderStatus {
-  PENDING
-  IN_PROGRESS
+  LOCKED          // Waiting for Breakdown
+  PENDING         // Breakdown done, Ready to Pull
+  IN_PROGRESS     // In Operator's "Cart"
   COMPLETED
-  BLOCKED
-  REWORK            // Internal Kickback
+  BLOCKED         // Issue reported
+  REWORK
 }
 
 enum AssetType {
@@ -93,20 +94,23 @@ model Project {
   assyNumber       String          @unique // "821-4402-AB"
   customer         String          
   totalPo          String          
+  
+  // CONFIGURATION
   plotting         ProjectType     @default(REGULAR)
+  scope            ProjectScope    @default(NEW_ASSY) // New vs Modif
+  breakdownDays    Int             @default(5)        // How long Phase 1 takes
   
   // DATES
   orderDate        DateTime
   etd              DateTime
-  internalDeadline DateTime      
   
   // STATUS TRACKING
-  // 1. Is the Engineering done? (Simple boolean or status)
   engineeringStatus String         @default("IN_PROGRESS") 
-  
-  // 2. Where is it in the Factory? (Level 2 Feature)
   productionStage  ProductionStage @default(PLANNING)
-
+  
+  // LOGIC: When does Phase 2 (Engineering) actually start?
+  // Calculated as: OrderDate + breakdownDays
+  breakdownFinishDate DateTime?
   createdAt        DateTime        @default(now())
 
   // RELATIONS
@@ -121,14 +125,17 @@ model Project {
 
 model WorkOrder {
   id             String          @id @default(cuid(2))
-  processName    ProcessName     // e.g. JIG_DRAWING
-  deadline       DateTime        
-  status         WorkOrderStatus @default(PENDING)
+  processName    ProcessName
+  status         WorkOrderStatus @default(LOCKED) // Starts Locked until BD is done
+
+  // THE SMART QUEUE LOGIC
+  targetDate     DateTime        // "Soft Goal" (Start Date + Process Time)
+  hardDeadline   DateTime        // "The Wall" (Target + Buffer)
   
-  // SELF-INSPECTION REPORT
-  operatorNote   String?         @db.Text 
-  completedAt    DateTime?       
-  
+  // Actual tracking
+  operatorNote   String?         @db.Text
+  completedAt    DateTime?
+
   projectId      String
   project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assignedUserId String?
