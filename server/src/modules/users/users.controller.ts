@@ -9,18 +9,18 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('user')
   createUser(
-    @Body() createUsersDto: CreateUsersDto,
-    @CurrentUser() user:any){   // Get the person making the request
-    // Role check
-    if (user.role !== 'ADMIN') {
-      throw new ForbiddenException('Only admins can create new user')
-    }
+    @Body() createUsersDto: CreateUsersDto) {
+    // @CurrentUser() user:any){   // Get the person making the request
+    // // Role check
+    // if (user.role !== 'ADMIN') {
+    //   throw new ForbiddenException('Only admins can create new user')
+    // }
       return this.usersService.create(createUsersDto);
   }
 

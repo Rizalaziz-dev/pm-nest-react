@@ -14,10 +14,10 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
-  }
+  // @Post('register')
+  // register(@Body() dto: RegisterDto) {
+  //   return this.authService.register(dto);
+  // }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)

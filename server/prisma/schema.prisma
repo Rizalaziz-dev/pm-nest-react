@@ -13,15 +13,154 @@ datasource db {
 }
 
 enum UserRole {
-  USER
   ADMIN
+  PM
+  OPERATOR_DWG          // The 6 Engineers
+  REQUESTER         // The Customer
+  PRODUCTION_LEAD   // (Level 2) Shop Floor Supervisor
 }
+
+enum ProjectScope {
+  NEW_ASSY      // 100 Points
+  MODIF_MAJOR   // 60 Points
+  MODIF_MINOR   // 20 Points
+}
+
+enum ProjectType {
+  REGULAR
+  PROTOTYPE
+}
+
+// THE 6 ENGINEERING TASKS (Virtual Work)
+enum ProcessName {
+  JOINT_DRAWING
+  HOUSING_DRAWING
+  JIG_DRAWING
+  VISUAL_DRAWING
+  JOB_STATION_ACC
+  JOB_STATION_FINISHING
+}
+
+// THE PRODUCTION STAGES 
+enum ProductionStage {
+  PLANNING          // Engineering phase
+  PP                // Wires cut, Jointing
+  HOUSING           // Connector Insertion
+  ASSEMBLING        // On the JIG Board
+  JS_ACC            // Acccesiries installation
+  VISUAL            // Cheking for dimension, etc
+  CHECKER           // Continuity check
+  JS_FINISHING      // Final touches
+  PREDEL            // Final Inspection
+}
+
+enum WorkOrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+  REWORK            // Internal Kickback
+}
+
+enum AssetType {
+  REFERENCE
+  DRAFT_FILE
+  FINAL_DELIVERY
+  REVISION_IMG
+}
+
+// --- MODELS ---
 
 model User {
   id    String     @id @default(cuid(2))
   name  String
   email String  @unique
   password String
-  role String
+  role UserRole @default(OPERATOR_DWG)
   createdAt DateTime @default(now())
+
+  // RELATIONS  
+  assignedOrders   WorkOrder[]  
+  managedProjects  Project[]    @relation("PM_Projects")
+  uploadedAssets   Asset[]
+  authoredRevisions Revision[]
+
+  @@map("users")
+}
+
+model Project {
+  id               String          @id @default(cuid(2))
+  assyNumber       String          @unique // "821-4402-AB"
+  customer         String          
+  totalPo          String          
+  plotting         ProjectType     @default(REGULAR)
+  
+  // DATES
+  orderDate        DateTime
+  etd              DateTime
+  internalDeadline DateTime      
+  
+  // STATUS TRACKING
+  // 1. Is the Engineering done? (Simple boolean or status)
+  engineeringStatus String         @default("IN_PROGRESS") 
+  
+  // 2. Where is it in the Factory? (Level 2 Feature)
+  productionStage  ProductionStage @default(PLANNING)
+
+  createdAt        DateTime        @default(now())
+
+  // RELATIONS
+  pmId             String
+  pm               User            @relation("PM_Projects", fields: [pmId], references: [id])
+  workOrders       WorkOrder[]     
+  assets           Asset[]       
+  revisions        Revision[]    
+
+  @@map("projects")
+}
+
+model WorkOrder {
+  id             String          @id @default(cuid(2))
+  processName    ProcessName     // e.g. JIG_DRAWING
+  deadline       DateTime        
+  status         WorkOrderStatus @default(PENDING)
+  
+  // SELF-INSPECTION REPORT
+  operatorNote   String?         @db.Text 
+  completedAt    DateTime?       
+  
+  projectId      String
+  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedUserId String?
+  assignedUser   User?           @relation(fields: [assignedUserId], references: [id])
+
+  @@map("work_orders")
+}
+
+model Revision {
+  id             String   @id @default(cuid(2))
+  comment        String   @db.Text
+  screenshotUrl  String?  
+  resolved       Boolean  @default(false)
+  
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId       String   
+  author         User     @relation(fields: [authorId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@map("revisions")
+}
+
+model Asset {
+  id             String    @id @default(cuid(2))
+  url            String    
+  fileType       AssetType
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploaderId     String
+  uploader       User      @relation(fields: [uploaderId], references: [id])
+  createdAt      DateTime  @default(now())
+
+  @@map("assets")
 }

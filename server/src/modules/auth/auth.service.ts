@@ -42,17 +42,17 @@ export class AuthService {
   }
 }
 
-  async register(dto: RegisterDto) {
-    const hash = await bcrypt.hash(dto.password, 10);
+  // async register(dto: RegisterDto) {
+  //   const hash = await bcrypt.hash(dto.password, 10);
 
-    return this.prisma.user.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        password: hash,
-        role: UserRole.USER,
-      },
-    });
-  }
+  //   return this.prisma.user.create({
+  //     data: {
+  //       name: dto.name,
+  //       email: dto.email,
+  //       password: hash,
+  //       role: UserRole.USER,
+  //     },
+  //   });
+  // }
 }
 

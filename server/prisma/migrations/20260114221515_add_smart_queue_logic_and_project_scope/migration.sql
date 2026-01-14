@@ -1,0 +1,2 @@
+-- CreateEnum
+CREATE TYPE "ProjectScope" AS ENUM ('NEW_ASSY', 'MODIF_MAJOR', 'MODIF_MINOR');

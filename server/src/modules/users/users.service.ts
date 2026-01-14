@@ -19,7 +19,7 @@ constructor(private readonly prisma: PrismaService) {}
         name:dto.name,
         email:dto.email,
         password: hashedPassword,
-        role: dto.role,
+        role: UserRole.ADMIN,
      },
     //  select: {
     //    id: true,
