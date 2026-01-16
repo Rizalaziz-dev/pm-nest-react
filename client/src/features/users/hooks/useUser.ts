@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createUser, CreateUserDTO, deleteUser, getUsers, updateUser } from "../../../api/users.api";
 
 
-
+// Service Hook Methode
 export function useUser() {
     const queryClient = useQueryClient();
 

@@ -70,7 +70,7 @@ function DashboardContent() {
                 <td>{user.password}</td>
                 <td>
                 <button className="btn btn-xs btn-primary">Edit</button>
-                <button className="btn btn-xs btn-danger ml-2">Delete</button>  
+                {/* <button className="btn btn-xs btn-danger ml-2">Delete</button>   */}
                 </td>             
               </tr>
             ))}                      

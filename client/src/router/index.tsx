@@ -4,6 +4,8 @@ import Register from "../features/auth/pages/RegisterPage";
 import UsersPage from "../features/users/pages/UsersPage";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import AdminLayout from "../layout/AdminLayout";
+import OperatorLayout from "../layout/OperatorLayout";
+import OperatorPage from "../pages/Dashboard/OperatorPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,8 +26,15 @@ export const router = createBrowserRouter([
         }
     ]
     },
-  {
+    {
     path: '/dashboard', 
-    element: <Dashboard />
-},
-])
+    element: <OperatorLayout />,
+    children: [
+        {
+            path: "operator",
+            element: <OperatorPage />,
+        }
+    ]
+    },
+    
+  ])

@@ -93,33 +93,39 @@ export class ProjectsService {
           create: [
             // 1. JOINT DRAWING (Critical for Cutting)
             { 
-              processName: ProcessName.JOINT_DRAWING, 
+              processName: ProcessName.JOINT_DRAWING,
+              status: WorkOrderStatus.PENDING, 
               ...createDates(breakdownFinishDate, rules.joint) 
             },
             // 2. HOUSING DRAWING (Critical for Insertion)
             { 
               processName: ProcessName.HOUSING_DRAWING, 
+              status: WorkOrderStatus.PENDING,
               targetDate: housingDates.targetDate,
               hardDeadline: housingDates.hardDeadline
             },
             // 3. JIG DRAWING (Depends on Housing)
             { 
               processName: ProcessName.JIG_DRAWING, 
+              status: WorkOrderStatus.PENDING,
               ...createDates(housingDates.targetDate, rules.jig_offset) 
             },
             // 4. ACCESSORIES (Parallel)
             { 
               processName: ProcessName.JOB_STATION_ACC, 
+              status: WorkOrderStatus.PENDING,
               ...createDates(breakdownFinishDate, rules.acc) 
             },
             // 5. VISUAL (Parallel)
             { 
               processName: ProcessName.VISUAL_DRAWING, 
+              status: WorkOrderStatus.PENDING,
               ...createDates(breakdownFinishDate, rules.visual) 
             },
             // 6. FINISHING (Parallel)
             { 
               processName: ProcessName.JOB_STATION_FINISHING, 
+              status: WorkOrderStatus.PENDING,
               ...createDates(breakdownFinishDate, rules.finish) 
             }
           ]
@@ -236,4 +242,16 @@ export class ProjectsService {
       include: { workOrders: true, revisions: true }
     });
   }
+
+  async startJob(workOrderId: string, userId: string) {
+  return this.prisma.workOrder.update({
+    where: { id: workOrderId },
+    data: {
+      status: 'IN_PROGRESS',
+      assignedUserId: userId,
+      // If you added a 'startedAt' column, set it here:
+      // startedAt: new Date() 
+    }
+  });
+}
 }

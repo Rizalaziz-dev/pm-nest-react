@@ -45,7 +45,6 @@ export class CreateProjectDto {
   @IsDate({ message: 'ETD must be a valid ISO Date' })
   etd: Date;
 
-  // Validates that the ID sent is a real UUID format
-  @IsUUID()
+  @IsString()
   pmId: string;
 }
