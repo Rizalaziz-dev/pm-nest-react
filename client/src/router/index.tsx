@@ -2,10 +2,9 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "../features/auth/pages/LoginPage";
 import Register from "../features/auth/pages/RegisterPage";
 import UsersPage from "../features/users/pages/UsersPage";
-import Dashboard from "../pages/Dashboard/Dashboard";
-import AdminLayout from "../layout/AdminLayout";
-import OperatorLayout from "../layout/OperatorLayout";
-import OperatorPage from "../pages/Dashboard/OperatorPage";
+import MainLayout from "../layout/MainLayout";
+import OperatorPage from "../features/dashboard/pages/OperatorPage";
+
 
 export const router = createBrowserRouter([
   {
@@ -18,7 +17,7 @@ export const router = createBrowserRouter([
     },
   {
     path: '/admin', 
-    element: <AdminLayout />,
+    element: <MainLayout />,
     children: [
         {
             path: "users",
@@ -28,7 +27,7 @@ export const router = createBrowserRouter([
     },
     {
     path: '/dashboard', 
-    element: <OperatorLayout />,
+    element: <MainLayout />,
     children: [
         {
             path: "operator",

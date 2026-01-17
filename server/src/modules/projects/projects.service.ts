@@ -155,6 +155,7 @@ export class ProjectsService {
           select: { 
             scope: true, 
             assyNumber: true, 
+            customer: true,
             productionStage: true,
             breakdownFinishDate: true
           } 
@@ -231,7 +232,7 @@ export class ProjectsService {
   
   async findAll() {
     return this.prisma.project.findMany({
-      include: { workOrders: true, pm: true },
+      include: { workOrders: true, pm: true, },
       orderBy: { orderDate: 'desc' }
     });
   }
@@ -254,4 +255,14 @@ export class ProjectsService {
     }
   });
 }
+
+  async completeJob(workOrderId: string) {
+    return this.prisma.workOrder.update({
+      where: { id: workOrderId },
+      data: {
+        status: 'COMPLETED',
+        completedAt: new Date() // Assuming you have a 'completedAt' field
+      }
+    });
+  }
 }

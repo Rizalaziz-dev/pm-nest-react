@@ -23,7 +23,7 @@ export default function LoginForm({ onSubmit, methods }: LoginFormProps ) {
   return (
     <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <div className="grid place-items-center h-screen">
+           
             <Card>
                 <h2 className="text-3xl font-bold mb-2">Login</h2>
                 
@@ -31,12 +31,9 @@ export default function LoginForm({ onSubmit, methods }: LoginFormProps ) {
                 <PasswordInput/>
 
                 <Button text="Login" type="submit" />
-                <div className="flex justify-center gap-1">
-                <span>create an account</span>
-                <Link to="/register" className="link link-primary">click here</Link>
-                </div>
+                
             </Card>
-            </div>
+           
         </form>
     </FormProvider>
   )

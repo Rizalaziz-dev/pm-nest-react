@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom'; // Assuming React Router
-import { SmartQueue } from '../../features/dashboard/pages/SmartQueue';
+import { SmartQueue } from './SmartQueue';
 
 
 const OperatorPage: React.FC = () => {

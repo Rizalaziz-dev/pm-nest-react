@@ -29,10 +29,24 @@ export function useSmartQueue(processName: string) {
         }
     });
 
+    // NEW: The Completion Mutation
+    const completeJobMutation = useMutation({
+        mutationFn: (workOrderId: string) => dashboardApi.completeJob(workOrderId),
+        onSuccess: () => {
+            toast.success("Job Done! Great work.");
+            queryClient.invalidateQueries({ queryKey: ['smart-queue'] });
+        },
+        onError: () => {
+            toast.error("Failed to complete job.");
+        }
+    });
+
     // 3. RETURN EVERYTHING (Spread syntax)
     return {
         ...queueQuery, // returns data, isLoading, isError, etc.
         pullJob: pullJobMutation.mutate,
         isPulling: pullJobMutation.isPending, // Separate loading state for the button
+        completeJob: completeJobMutation.mutate,
+        isCompleting: completeJobMutation.isPending,
     };
 }

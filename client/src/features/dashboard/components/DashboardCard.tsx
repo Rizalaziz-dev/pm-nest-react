@@ -34,7 +34,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ task, variant, onPull, is
             
             {/* Scope Badge */}
             <span className={`font-bold ${scopeBadgeClass}`}>
-              {task.project.scope === 'NEW_ASSY' ? 'NEW (4h)' : 'MODIF (30m)'}
+              {task.project.scope === 'NEW_ASSY' ? 'NEW' : 'MODIF'}
             </span>
 
             {/* Factory Alert */}
@@ -44,8 +44,21 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ task, variant, onPull, is
               </span>
             )}
           </div>
-          <p className="text-sm opacity-70">{task.project.customer}</p>
+
+          {/* Row 2: CUSTOMER (New & Improved) */}
+          <div className="flex items-center gap-2 mt-1">
+            {/* Building Icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-base-content/60">
+              <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+            </svg>
+            {/* The Name */}
+            <span className="text-sm font-bold text-base-content/80 uppercase tracking-wide">
+              {task.project.customer || <span className="text-error">MISSING DATA</span>}
+            </span>
+            <span className="text-xs opacity-50">| {task.project.productionStage}</span>
+          </div>
         </div>
+        
 
         {/* RIGHT: DATES & ACTION */}
         <div className="flex items-center gap-6 text-right">

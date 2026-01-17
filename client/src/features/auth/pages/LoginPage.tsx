@@ -2,57 +2,85 @@
 // Smart(Container)
 
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+
+
 import LoginForm from "../components/LoginForm";
 import { useLogin } from "../hooks/useLogin";
 import { LoginFormData, loginScheme } from "../schemas/login.schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginPage() {
-    const { login, isLoading, error } = useLogin();
-   
-    const methods = useForm<LoginFormData>({
-    resolver: zodResolver(loginScheme),
-    });
+  const navigate = useNavigate();
 
-    const handleLogin = async (data: LoginFormData) => {
-      try {
-        await login(data);
+  // Api call hook
+  const { login, isLoading, error } = useLogin();
+  
+  // FORM Manager
+  const methods = useForm<LoginFormData>({
+  resolver: zodResolver(loginScheme),
+  });
+  
+  // Handler
+  const handleLogin = async (data: LoginFormData) => {
+    try {
+      // Call the api
+      const response = await login(data);
 
-      // catch the error from ./api/client/ts
-      }catch (err:any) {
-        if (err.message.includes('email') || err.message.includes('email')) {
-          methods.setError('email', {
-            type: 'manual',
-            message: err.message
-          });
-        }else if (err.message.includes('password')){
-          methods.setError('password', {
-            type: 'manual',
-            message: err.message
-          });
+      // Store the Token
+     localStorage.setItem('token', response.token);
+
+     // Get The Role from the token
+     const userRole = response.user.role;
+     const userName = response.user.name;
+
+     toast.success(`Welcome back, ${userName}!`);
+
+     // Redirect based on role
+     if (userRole === 'ADMIN') {
+            navigate('/admin/users');
+        } else {
+            // Default operator view
+            navigate('/dashboard/operator');
         }
+
+    // catch the error from ./api/client/ts
+    }catch (err:any) {
+      console.error("Login Logic Error:", err);
+      const errorMessage = err?.message || "An unknown error occurred";
+
+      if (errorMessage.toLowerCase().includes('email')) {
+        methods.setError('email', { type: 'manual', message: errorMessage });
+      } else if (errorMessage.toLowerCase().includes('password')) {
+        methods.setError('password', { type: 'manual', message: errorMessage });
+      } else {
+        toast.error(errorMessage);
       }
-    };
+    }
+  };
 
     return (
       <div className="grid place-items-center h-screen bg-base-200">
+      <div className="w-full max-w-md"> {/* Added wrapper for layout stability */}
+        
         <LoginForm 
-        onSubmit={handleLogin} 
-        methods={methods}
+          onSubmit={handleLogin} 
+          methods={methods}
         />
 
-        // This code where the error appear 
+        {/* FIX: Comments in JSX must be inside braces like this */}
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center mt-4">
+             <span className="loading loading-spinner text-primary"></span>
+          </div>
+        )}
 
-        {isLoading && <p className="mt-2">Logging in...</p>}
-
-        {error && (
-                <p className="text-sm text-red-500 font-semibold animate-pulse">
-                    {(error as any).message || "An unknown error occurred"}
-                </p>
-            )}
-      
-      </div>    
-    )    
+        
+      </div>
+    </div>    
+  );
 }
 
 

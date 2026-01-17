@@ -55,4 +55,10 @@ async startJob(
 ) {
   return this.projectsService.startJob(id, userId);
 }
+
+// PATCH /projects/work-order/:id/complete
+@Patch('work-order/:id/complete')
+async completeJob(@Param('id') id: string) {
+  return this.projectsService.completeJob(id);
+}
 }

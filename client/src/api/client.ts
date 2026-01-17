@@ -31,7 +31,7 @@ export async function aptFetch<T>(
 
             // 2. Redirect to login (Full page reload is safest here)
             // This ensures all React state is wiped clean
-            window.location.href = '/login'; 
+            // window.location.href = '/login'; 
         }
         // --- END INTEGRATION ---
         let errorMessage = 'API Request Failed'

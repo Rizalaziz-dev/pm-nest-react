@@ -2,23 +2,30 @@ import React, { useMemo } from 'react';
 import { useSmartQueue } from '../hooks/useDashboard';
 import { WorkOrder } from '../types/dashboard.types';
 import DashboardCard from '../components/DashboardCard'; // We'll make this next
+import { getMyUserId } from '../../../utils/auth';
 
 interface SmartQueueProps {
   processName: string; // e.g., 'JIG_DRAWING'
 }
 
-const CURRENT_USER_ID = "szqxbxtbmbl172a84aqqz23s";
+
 
 export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
-  const { data, isLoading, isError, pullJob, isPulling } = useSmartQueue(processName);
- 
+  const { data, isLoading, isError, pullJob, isPulling, completeJob, isCompleting } = useSmartQueue(processName);
+  // Get current user ID from Auth util
+  const myId = getMyUserId();
+
+  // Guard Clause: Don't render if user isn't loaded yet
+  if (!myId) return <div>Loading user...</div>;
+
   // --- 1. SPLIT THE DATA ---
   const { myActiveJobs, availablePool } = useMemo(() => {
     if (!data?.pool) return { myActiveJobs: [], availablePool: [] };
 
     // Zone A: Things I am currently working on
     const myActive = data.pool.filter(t => 
-      t.status === 'IN_PROGRESS' && t.assignedUserId === CURRENT_USER_ID
+      t.status === 'IN_PROGRESS' && 
+      t.assignedUserId === myId
     );
 
     // Zone B: Things available to be picked (ignore other people's in-progress work)
@@ -58,7 +65,7 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
   const handlePullJob = (workOrderId: string) => {
       // Hardcoded User ID for now (or get from Auth Context)
       
-      pullJob({ workOrderId, userId: CURRENT_USER_ID });
+      pullJob({ workOrderId, userId: myId });
   };
 
   return (
@@ -67,7 +74,7 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-base-content">
-           {processName} <span className="opacity-50 text-lg">/ Dashboard</span>
+          Dashboard |<span className="opacity-50 text-lg"> {processName} </span>
         </h1>
         {/* Overload Warning could go here */}
       </div>
@@ -95,10 +102,13 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
                    <progress className="progress progress-primary w-full mt-4" value="50" max="100"></progress>
 
                    <div className="card-actions justify-end mt-4">
-                     {/* We will wire this button up next! */}
-                     <button className="btn btn-success btn-sm text-white">
-                       ✅ Mark Complete
-                     </button>
+                    <button 
+                      className="btn btn-success btn-sm text-white"
+                      onClick={() => completeJob(task.id)}
+                      disabled={isCompleting} // Prevent double clicks
+                    >
+                      {isCompleting ? <span className="loading loading-spinner loading-xs"></span> : '✅ Mark Complete'}
+                    </button>
                    </div>
                  </div>
                </div>
@@ -110,37 +120,70 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
 
 
       {/* --- ZONE B: THE POOL (Available to Pick) --- */}
-      <section>
-        <h2 className="text-xl font-bold mb-4 opacity-80">Available Pool</h2>
+      
+      {/* 1. THE DANGER SHELF (Urgent/Factory Waiting) */}
+      <section className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="badge badge-error badge-lg gap-2 animate-bounce text-white">
+            🔥 DANGER ZONE
+          </div>
+          <span className="text-sm font-bold text-error uppercase tracking-widest">
+            Do Immediately
+          </span>
+        </div>
         
-        {/* Urgent Shelf */}
-        <div className="space-y-4 mb-8">
-            {urgentTasks.map(task => (
+        <div className="grid gap-4">
+          {urgentTasks.length > 0 ? (
+            urgentTasks.map(task => (
               <DashboardCard 
                 key={task.id} 
                 task={task} 
                 variant="urgent"
-                onPull={() => pullJob({ workOrderId: task.id, userId: CURRENT_USER_ID })}
+                onPull={() => pullJob({ workOrderId: task.id, userId: myId })}
                 isPulling={isPulling}
               />
-            ))}
+            ))
+          ) : (
+            // Empty State for Danger Zone (A good thing!)
+            <div className="alert alert-success opacity-70 bg-transparent border-dashed border-2 text-success-content">
+              <span>✅ No critical emergencies. You are safe.</span>
+            </div>
+          )}
         </div>
+      </section>
 
-        {/* Standard Shelf */}
-        <div className="space-y-4">
-            {standardTasks.map(task => (
+      {/* 2. THE TODAY SHELF (Standard Target) */}
+      <section className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+           <div className="badge badge-success badge-lg gap-2 text-white">
+             🟢 TARGET: TODAY
+           </div>
+           <span className="text-sm font-bold opacity-60">
+             Keep the flow moving
+           </span>
+        </div>
+        
+        <div className="grid gap-4">
+          {standardTasks.length > 0 ? (
+            standardTasks.map(task => (
               <DashboardCard 
                 key={task.id} 
                 task={task} 
                 variant="standard"
-                onPull={() => pullJob({ workOrderId: task.id, userId: CURRENT_USER_ID })}
+                onPull={() => pullJob({ workOrderId: task.id, userId: myId })}
                 isPulling={isPulling}
               />
-            ))}
+            ))
+          ) : (
+            <div className="p-4 border border-base-300 rounded-lg text-center opacity-50">
+              Daily target cleared. Check the bank below.
+            </div>
+          )}
         </div>
+      </section>
+
+      {/* 3. THE FUTURE SHELF (The Freezer) */}
         
-        
-      {/* --- ZONE C: FUTURE BANK (The Freezer) --- */}
       {/* We set opacity-60 so it looks "frozen" or inactive until hovered */}
       <section className="mt-12 opacity-60 hover:opacity-100 transition-opacity duration-300">
         
@@ -153,15 +196,17 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
            </span>
         </div>
 
+        <div className="grid gap-4 max-h-125 overflow-y-auto pr-2 custom-scrollbar">
+
         <div className="grid gap-4">
           {futureTasks.length > 0 ? (
             futureTasks.map(task => (
               <DashboardCard 
-                key={task.id} 
-                task={task} 
-                variant="future" // Make sure DashboardCard handles this variant!
-                onPull={() => pullJob({ workOrderId: task.id, userId: CURRENT_USER_ID })}
-                isPulling={isPulling}
+              key={task.id} 
+              task={task} 
+              variant="future" // Make sure DashboardCard handles this variant!
+              onPull={() => pullJob({ workOrderId: task.id, userId: myId })}
+              isPulling={isPulling}
               />
             ))
           ) : (
@@ -171,9 +216,8 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
             </div>
           )}
         </div>
+          </div>
       </section>
-      </section>
-
     </div>
   );
 };
