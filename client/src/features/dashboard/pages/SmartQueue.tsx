@@ -11,6 +11,7 @@ interface SmartQueueProps {
 
 
 export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
+  // Hooks
   const { data, isLoading, isError, pullJob, isPulling, completeJob, isCompleting } = useSmartQueue(processName);
   // Get current user ID from Auth util
   const myId = getMyUserId();
@@ -34,39 +35,51 @@ export const SmartQueue: React.FC<SmartQueueProps> = ({ processName }) => {
     );
 
     return { myActiveJobs: myActive, availablePool: pool };
-  }, [data]);
+  }, [data, myId]);
 
+  // --- 2. CATEGORIZE THE POOL ---
 
-  // --- 2. SORT THE POOL (Only sort the available stuff) ---
-  const { urgentTasks, standardTasks, futureTasks } = useMemo(() => {
-    // IMPORTANT: We now map over 'availablePool', not 'data.pool'
+    const { urgentTasks, standardTasks, futureTasks } = useMemo(() => {
     if (!availablePool) return { urgentTasks: [], standardTasks: [], futureTasks: [] };
     
-    const today = new Date().toISOString();
+    // A. Get "Midnight Today" (00:00:00)
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
-    const urgent = availablePool.filter(t => 
-      t.hardDeadline <= today || t.project.productionStage !== 'PLANNING'
-    );
-    
-    const standard = availablePool.filter(t => 
-      !urgent.includes(t) && t.targetDate <= today
-    );
+    const urgent: typeof availablePool = [];
+    const standard: typeof availablePool = [];
+    const future: typeof availablePool = [];
 
-    const future = availablePool.filter(t => 
-      !urgent.includes(t) && !standard.includes(t)
-    );
+    availablePool.forEach(task => {
+      // B. Get "Midnight Task Date"
+      // uses targetDate first, falls back to dueDate if target is missing
+      const taskDate = new Date(task.targetDate || task.dueDate); 
+      const taskMidnight = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate()).getTime();
+
+      // C. Sort into Buckets (Strictly by Date)
+      
+      if (taskMidnight < todayMidnight) {
+        // 1. DANGER: strictly BEFORE today (Yesterday or older)
+        urgent.push(task);
+      } 
+      else if (taskMidnight === todayMidnight) {
+        // 2. TODAY: strictly TODAY
+        standard.push(task);
+      } 
+      else {
+        // 3. FUTURE: strictly AFTER today (Tomorrow+)
+        future.push(task);
+      }
+    });
 
     return { urgentTasks: urgent, standardTasks: standard, futureTasks: future };
   }, [availablePool]);
 
+
   if (isLoading) return <div className="loading loading-spinner loading-lg"></div>;
   if (isError) return <div role="alert" className="alert alert-error"><span>Error loading queue.</span></div>;
   
-  const handlePullJob = (workOrderId: string) => {
-      // Hardcoded User ID for now (or get from Auth Context)
-      
-      pullJob({ workOrderId, userId: myId });
-  };
+  
 
   return (
     <div className="p-6 space-y-8 bg-base-200 min-h-screen">

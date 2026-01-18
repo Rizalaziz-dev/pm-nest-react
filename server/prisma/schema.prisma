@@ -14,10 +14,20 @@ datasource db {
 
 enum UserRole {
   ADMIN
-  PM
-  OPERATOR_DWG          // The 6 Engineers
-  REQUESTER         // The Customer
-  PRODUCTION_LEAD   // (Level 2) Shop Floor Supervisor
+  PM                // Project Manager
+  REQUESTER         // Customer
+  PRODUCTION_LEAD   // Supervisor
+  
+  // --- THE GATEKEEPER ---
+  OPERATOR_BREAKDOWN // 🔓 Breakdowns the Assy -> Unlocks Drawing
+
+  // --- THE 6 SPECIALIST ENGINEERS ---
+  ENGINEER_JOINT      // 1. Joint Drawing
+  ENGINEER_HOUSING    // 2. Housing Drawing
+  ENGINEER_JIG        // 3. Jig Drawing
+  ENGINEER_VISUAL     // 4. Visual Drawing
+  ENGINEER_JS_ACC     // 5. Job Station Accessories
+  ENGINEER_JS_FIN     // 6. Job Station Finishing
 }
 
 enum ProjectScope {
@@ -33,6 +43,7 @@ enum ProjectType {
 
 // THE 6 ENGINEERING TASKS (Virtual Work)
 enum ProcessName {
+  BREAKDOWN
   JOINT_DRAWING
   HOUSING_DRAWING
   JIG_DRAWING
@@ -77,7 +88,7 @@ model User {
   name  String
   email String  @unique
   password String
-  role UserRole @default(OPERATOR_DWG)
+  role UserRole @default(OPERATOR_BREAKDOWN)
   createdAt DateTime @default(now())
 
   // RELATIONS  

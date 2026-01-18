@@ -14,14 +14,14 @@ echo "1. Creating Project Manager (Alice)..."
 # Assuming you have a /users endpoint. If not, paste an existing UUID below.
 # Generating a random email to avoid unique constraint errors on re-runs
 RANDOM_NUM=$((1 + $RANDOM % 10000))
-PM_EMAIL="alice_pm_${RANDOM_NUM}@sevendayflow.com"
+PM_EMAIL="alice${RANDOM_NUM}@example.com"
 
 PM_RESPONSE=$(curl -s -X POST "$API_URL/users/user" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Alice Manager",
     "email": "'"$PM_EMAIL"'",
-    "password": "securepassword123",
+    "password": "Alice12345",
     "role": "PM"
   }')
 

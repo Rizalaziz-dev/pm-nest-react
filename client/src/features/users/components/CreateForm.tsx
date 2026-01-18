@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
-import { RegisterFormData, registerScheme, userCoreSchema } from "../../auth/schemas/register.schemas";
+import { RegisterFormData, registerScheme, userCoreSchema, VALID_ROLES } from "../../auth/schemas/register.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import z from "zod";
+
 
 interface Props {
     onSubmit: (users: RegisterFormData) => void
@@ -65,11 +66,16 @@ export default function CreateForm({onSubmit, initialData}: Props) {
                 <select 
                     className={`select select-bordered w-full ${errors.role ? 'select-error' : ''}`}
                     {...register("role")}
-                    defaultValue="" // Important: Set a default empty value
-                    >
-                    <option value="" disabled>Pick a role</option>
-                    <option value="USER">User</option>
-                    <option value="ADMIN">Admin</option>
+                    defaultValue="" 
+                >
+                    <option value="" disabled>Select a role...</option>
+                    
+                    {/* Map over the Zod options */}
+                    {VALID_ROLES.map((role) => (
+                        <option key={role} value={role}>
+                            {role.replace(/_/g, " ")} {/* Makes "ENGINEER_JIG" look like "ENGINEER JIG" */}
+                        </option>
+                    ))}
                 </select>
                 {errors.role && (
                     <label className="label">

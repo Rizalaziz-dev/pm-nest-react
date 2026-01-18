@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Login from "../features/auth/pages/LoginPage";
 import Register from "../features/auth/pages/RegisterPage";
 import UsersPage from "../features/users/pages/UsersPage";
@@ -15,25 +15,47 @@ export const router = createBrowserRouter([
     path: '/register', 
     element: <Register />
     },
+ // 1. Root Redirect (Optional: Send "/" to login)
+  {
+    path: '/',
+    element: <Navigate to="/login" replace />
+  },
+
+  // 2. Admin Routes
   {
     path: '/admin', 
-    element: <MainLayout />,
+    element: <MainLayout />, // Ensure MainLayout handles the Admin Sidebar
     children: [
         {
             path: "users",
             element: <UsersPage />,
-        }
-    ]
-    },
-    {
-    path: '/dashboard', 
-    element: <MainLayout />,
-    children: [
+        },
         {
-            path: "operator",
-            element: <OperatorPage />,
+            path: "overview", // Added based on our previous logic
+            element: <div>Admin Dashboard Placeholder</div> 
         }
     ]
-    },
-    
-  ])
+  },
+
+  // 3. The Dynamic Dashboard Routes
+  {
+    path: '/dashboard', 
+    element: <MainLayout />, 
+    children: [
+        // A. The "Catch-All" Route
+        // This ":slug" matches ANYTHING after dashboard/
+        // Examples: /dashboard/jig-drawing, /dashboard/breakdown, /dashboard/banana
+        {
+            path: ":slug", 
+            element: <OperatorPage />,
+        },
+        
+        // B. Safety Redirect
+        // If they go to just "/dashboard", send them to a safe default or back to login
+        {
+            path: "", 
+            element: <Navigate to="/login" replace />
+        }
+    ]
+  },
+]);

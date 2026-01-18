@@ -1,61 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-
-// Import your Sidebar and Navigation Arrays
+import React, { useMemo, useState } from 'react';
+import { Outlet, Navigate } from 'react-router-dom';
 import { Sidebar } from '../components/ui/sidebar';
-import { ADMIN_NAV, OPERATOR_NAV } from '../router/navigation';
+import { useAuth } from '../features/auth/hooks/useAuth'; 
+import { MENU_ITEMS, getMyWorkspace } from '../config/navigation';
 
 export const MainLayout: React.FC = () => {
-  const navigate = useNavigate();
-  const [role, setRole] = useState<'ADMIN' | 'OPERATOR' | null>(null);
-  const [userName, setUserName] = useState<string>('');
-
+  // 1. ALL HOOKS MUST BE AT THE TOP
+  const { user, loading } = useAuth(); 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
-  useEffect(() => {
-    // 1. Check for Token
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      navigate('/login');
-      return;
+  // 2. DEFINE USEMEMO (Safe against null user)
+  // We run this hook unconditionally, but handle null user inside
+  const navLinks = useMemo(() => {
+    // Safety: If no user yet, return empty list
+    if (!user) return [];
+
+    const links = [];
+
+    // A. Add "My Workspace"
+    const workspace = getMyWorkspace(user.role);
+    if (workspace) {
+      links.push(workspace);
     }
 
-    try {
-      // 2. Decode Token
-      const decoded: any = jwtDecode(token);    
-      
-      // Set Role and UserName
-      setRole(decoded.role || 'OPERATOR');
-      const nameFromToken = decoded.name || decoded.username || decoded.email || 'User';
-      setUserName(nameFromToken);
-    } catch (e) {
-      console.error("Invalid Token");
-      localStorage.removeItem('token');
-      navigate('/login');
-    }
-  }, [navigate]);
+    // B. Add Standard Menu Items
+    MENU_ITEMS.forEach((item) => {
+      if (item.allowedRoles.includes(user.role)) {
+        links.push({
+            label: item.label,
+            path: item.path,
+            icon: item.icon
+        });
+      }
+    });
 
-  // Prevent flashing empty screen while checking
-  if (!role) return null; 
+    return links;
+  }, [user]); // Re-run only when user changes
 
-  // 3. Select the correct Menu
-  const navLinks = role === 'ADMIN' ? ADMIN_NAV : OPERATOR_NAV;
+  // 3. NOW YOU CAN DO CONDITIONAL RETURNS
+  if (loading) {
+     return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  }
 
+  if (!user) {
+     return <Navigate to="/login" replace />;
+  }
+
+  // 4. RENDER
   return (
-    <div className="flex min-h-screen bg-base-200">
-      {/* 4. Pass the Data to Sidebar */}
+    <div className="flex min-h-screen bg-base-200 transition-all duration-300">
+      
       <Sidebar 
         links={navLinks} 
-        userRole={role} 
-        userName={userName} 
+        // We can safely access user here because of the 'if (!user)' check above
+        userRole={user.role.replace(/_/g, " ")} 
+        userName={user.name} 
         isCollapsed={isSidebarCollapsed} 
         toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 ml-64 p-8 fade-in">
+      <main 
+        className={`flex-1 p-8 fade-in transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}
+      >
         <Outlet />
       </main>
     </div>
