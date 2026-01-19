@@ -56,3 +56,20 @@ export const getMyWorkspace = (role: string) => {
     icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
   };
 };
+
+export const ROLE_DEFAULT_PATH: Record<string, string> = {
+  'ADMIN':              '/admin/users',
+  'MANAGER':            '/admin/overview',
+  'PM':                 '/manager/projects',
+  'OPERATOR_BREAKDOWN': '/dashboard/breakdown',
+  'ENGINEER_JOINT':     '/dashboard/joint-drawing',
+  'ENGINEER_HOUSING':   '/dashboard/housing-drawing',
+  'ENGINEER_JIG':       '/dashboard/jig-drawing',
+  'ENGINEER_VISUAL':    '/dashboard/visual-drawing',
+  'ENGINEER_JS_ACC':    '/dashboard/job-station-acc',
+  'ENGINEER_JS_FIN':    '/dashboard/job-station-fin',
+};
+
+export const getHomePath = (role: string) => {
+  return ROLE_DEFAULT_PATH[role] || '/login';
+};

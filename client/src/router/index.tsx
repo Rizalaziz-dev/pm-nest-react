@@ -4,23 +4,29 @@ import Register from "../features/auth/pages/RegisterPage";
 import UsersPage from "../features/users/pages/UsersPage";
 import MainLayout from "../layout/MainLayout";
 import OperatorPage from "../features/dashboard/pages/OperatorPage";
+import { PublicOnlyRoute } from "./PublicOnlyRoute";
 
 
 export const router = createBrowserRouter([
+  // 1. Public Only Routes (Login / Register)
   {
-    path: '/login', 
-    element: <Login />
-    },
-  {
-    path: '/register', 
-    element: <Register />
-    },
- // 1. Root Redirect (Optional: Send "/" to login)
-  {
-    path: '/',
-    element: <Navigate to="/login" replace />
+    element: <PublicOnlyRoute />, // 👈 This applies the guard
+    children: [
+      {
+        path: '/login', 
+        element: <Login />
+      },
+      {
+        path: '/register', 
+        element: <Register />
+      },
+      // Also redirect root to login (the guard will bounce them if logged in)
+      {
+        path: '/',
+        element: <Navigate to="/login" replace />
+      },
+    ]
   },
-
   // 2. Admin Routes
   {
     path: '/admin', 

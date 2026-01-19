@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../db/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { 
   ProcessName, 
   ProductionStage, 
   ProjectScope, 
-  WorkOrderStatus 
+  WorkOrderStatus,
+  User 
 } from '@prisma/client';
 
 @Injectable()
@@ -15,33 +16,74 @@ export class ProjectsService {
   // ===========================================================================
   // 1. PROJECT CREATION (THE SCHEDULING ENGINE)
   // ===========================================================================
-  async createProject(createProjectDto: CreateProjectDto) {
+  async createProject(createProjectDto: CreateProjectDto, user: User) {
     const { 
       assyNumber, 
       orderDate, 
       etd, 
-      scope, 
-      pmId, 
+      scope,       
       breakdownDays = 5, // Default duration if not provided
       ...rest 
     } = createProjectDto;
 
-    // --- A. CALCULATE START DATES (Gatekeeper: Breakdown) ---
-    const start = new Date(orderDate);
-    
-    // Engineering starts ONLY after Breakdown is finished
-    const breakdownFinishDate = new Date(start);
-    breakdownFinishDate.setDate(breakdownFinishDate.getDate() + breakdownDays);
+    // Calculate Breakdown Deadline  
+    const breakdownTarget = new Date(orderDate);
+    breakdownTarget.setDate(breakdownTarget.getDate() + breakdownDays);
 
-    // --- B. DEFINE RULES BASED ON COMPLEXITY (Points/Effort) ---
-    // Baseline Durations (Days)
-    let rules = {
-      joint: 2, housing: 3, acc: 2, visual: 3, finish: 2, jig_offset: 3
-    };
+    // Create Project & the gatekeeper tickets
 
-    // ADJUSTMENT: Reduce duration if it's a Modification
-    // We keep a minimum of 1 day to be safe.
-    if (scope !== ProjectScope.NEW_ASSY) {
+    return this.prisma.project.create({
+      data: {
+        assyNumber,
+        customer: createProjectDto.customer,
+        totalPo: createProjectDto.totalPo,
+        plotting: createProjectDto.plotting,
+        orderDate,
+        etd,
+        scope,
+        breakdownDays,
+
+        pm: { connect: { id: user.id } },
+
+        productionStage: ProductionStage.PLANNING, // Default start
+        engineeringStatus: 'IN_PROGRESS',
+
+        workOrders: {
+          create: [
+            // 1. BREAKDOWN (Gatekeeper)
+            { 
+              processName: ProcessName.BREAKDOWN,
+              status: WorkOrderStatus.PENDING,
+              targetDate: breakdownTarget,
+              hardDeadline: breakdownTarget // No buffer for gatekeeper
+            }
+          ]
+        }
+      },
+      include: { workOrders: true } // Return created orders for confirmation
+    });
+  }
+
+  // ===========================================================================
+  // 2. THE LOGIC ENGINE (PHASE 2: Triggers when Breakdown is Done)
+  // ===========================================================================
+  // Call this when Operator Breakdown clicks "Complete"
+  async generateEngineeringTasks(projectId: string) {
+
+    // A. GET PROJECT CONTEXT
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      include: { pm: true }
+    });
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    let rules = { joint: 2, housing: 3, acc: 2, visual: 3, finish: 2, jig_offset: 3 };
+
+    // Reduce duration for Modifications
+    if (project.scope !== ProjectScope.NEW_ASSY) {
       const reduce = (val: number) => Math.max(1, val - 1);
       rules = {
         joint: reduce(rules.joint),
@@ -53,87 +95,68 @@ export class ProjectsService {
       };
     }
 
-    // --- C. DATE MATH HELPERS ---
+    // C. DATE MATH
+    // Base date is NOW (because Breakdown just finished)
+    const breakdownFinishDate = new Date();
+
     const addDays = (date: Date, days: number) => {
       const result = new Date(date);
       result.setDate(result.getDate() + days);
       return result;
     };
 
-    // Helper: Generate Target Date (Goal) & Hard Deadline (Limit)
-    // Concept: Give Operator a 'Target', but system tracks 'Hard Limit' (+1 Day Buffer)
-    const createDates = (baseDate: Date, duration: number) => {
-      const target = addDays(baseDate, duration);
-      return {
-        targetDate: target,
-        hardDeadline: addDays(target, 1) // +1 Day Safety Buffer
-      };
-    };
-
-    // Special Calc: Housing determines Jig start
+    const createDates = (baseDate: Date, duration: number) => ({
+      targetDate: addDays(baseDate, duration),
+      hardDeadline: addDays(baseDate, duration + 1) // +1 Day Buffer
+    });
+    
     const housingDates = createDates(breakdownFinishDate, rules.housing);
 
-    // --- D. DATABASE TRANSACTION ---
-    return this.prisma.project.create({
-      data: {
-        assyNumber,
-        customer: createProjectDto.customer,
-        totalPo: createProjectDto.totalPo,
-        plotting: createProjectDto.plotting,
-        orderDate,
-        etd,
-        scope,           // NEW_ASSY, MODIF_MAJOR, MODIF_MINOR
-        breakdownDays,
-        breakdownFinishDate,
-        pmId,
-        productionStage: ProductionStage.PLANNING, // Default start
-        engineeringStatus: 'IN_PROGRESS',
-
-        workOrders: {
-          create: [
-            // 1. JOINT DRAWING (Critical for Cutting)
-            { 
-              processName: ProcessName.JOINT_DRAWING,
-              status: WorkOrderStatus.PENDING, 
-              ...createDates(breakdownFinishDate, rules.joint) 
-            },
-            // 2. HOUSING DRAWING (Critical for Insertion)
-            { 
-              processName: ProcessName.HOUSING_DRAWING, 
-              status: WorkOrderStatus.PENDING,
-              targetDate: housingDates.targetDate,
-              hardDeadline: housingDates.hardDeadline
-            },
-            // 3. JIG DRAWING (Depends on Housing)
-            { 
-              processName: ProcessName.JIG_DRAWING, 
-              status: WorkOrderStatus.PENDING,
-              ...createDates(housingDates.targetDate, rules.jig_offset) 
-            },
-            // 4. ACCESSORIES (Parallel)
-            { 
-              processName: ProcessName.JOB_STATION_ACC, 
-              status: WorkOrderStatus.PENDING,
-              ...createDates(breakdownFinishDate, rules.acc) 
-            },
-            // 5. VISUAL (Parallel)
-            { 
-              processName: ProcessName.VISUAL_DRAWING, 
-              status: WorkOrderStatus.PENDING,
-              ...createDates(breakdownFinishDate, rules.visual) 
-            },
-            // 6. FINISHING (Parallel)
-            { 
-              processName: ProcessName.JOB_STATION_FINISHING, 
-              status: WorkOrderStatus.PENDING,
-              ...createDates(breakdownFinishDate, rules.finish) 
-            }
-          ]
-        
-        }
-      },
-      include: { workOrders: true } // Return created orders for confirmation
-    });
+    // D. CREATE THE 6 ENGINEERS' WORK
+    // We use createMany or multiple creates via transaction
+    return this.prisma.$transaction([
+        // 1. Create the new tickets
+        this.prisma.workOrder.createMany({
+            data: [
+                { 
+                  projectId, 
+                  processName: ProcessName.JOINT_DRAWING, 
+                  status: 'PENDING', 
+                  ...createDates(breakdownFinishDate, rules.joint) },
+                { 
+                  projectId, 
+                  processName: ProcessName.HOUSING_DRAWING, 
+                  status: 'PENDING', 
+                  ...housingDates },
+                // Jig depends on Housing target
+                { 
+                  projectId, 
+                  processName: ProcessName.JIG_DRAWING, 
+                  status: 'PENDING', 
+                  ...createDates(housingDates.targetDate, rules.jig_offset) },
+                { 
+                  projectId, 
+                  processName: ProcessName.JOB_STATION_ACC, 
+                  status: 'PENDING', 
+                  ...createDates(breakdownFinishDate, rules.acc) },
+                { 
+                  projectId, 
+                  processName: ProcessName.VISUAL_DRAWING, 
+                  status: 'PENDING', 
+                  ...createDates(breakdownFinishDate, rules.visual) },
+                { 
+                  projectId, 
+                  processName: ProcessName.JOB_STATION_FINISHING, 
+                  status: 'PENDING', 
+                  ...createDates(breakdownFinishDate, rules.finish) },
+            ]
+        }),
+        // 2. Mark the Breakdown ticket as COMPLETED (if not already)
+        this.prisma.workOrder.updateMany({
+            where: { projectId, processName: 'BREAKDOWN' },
+            data: { status: 'COMPLETED', completedAt: new Date() }
+        })
+    ]);
   }
 
   // ===========================================================================
@@ -257,11 +280,28 @@ export class ProjectsService {
 }
 
   async completeJob(workOrderId: string) {
+    // 1. Fetch the Work Order first
+    const workOrder = await this.prisma.workOrder.findUnique({ 
+        where: { id: workOrderId } 
+    });
+
+    // 2. 🛡️ SAFETY CHECK: Stop if it doesn't exist
+    if (!workOrder) {
+        throw new NotFoundException(`Work Order with ID ${workOrderId} not found`);
+    }
+
+    // 3. ⚡ INTERCEPTOR: If this was the Breakdown, trigger the engine
+    // Now TS knows 'workOrder' is not null, so this is safe.
+    if (workOrder.processName === 'BREAKDOWN') {
+        await this.generateEngineeringTasks(workOrder.projectId);
+    }
+
+    // 4. Mark as Complete
     return this.prisma.workOrder.update({
       where: { id: workOrderId },
       data: {
         status: 'COMPLETED',
-        completedAt: new Date() // Assuming you have a 'completedAt' field
+        completedAt: new Date()
       }
     });
   }

@@ -12,3 +12,4 @@ export const OPERATOR_NAV: NavItem[] = [
   { label: 'Joint', path: '/dashboard/joint', icon: <Factory size={20} /> },
   // Add other processes...
 ];
+

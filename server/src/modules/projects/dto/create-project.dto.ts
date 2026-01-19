@@ -3,7 +3,6 @@ import {
   IsNotEmpty, 
   IsEnum, 
   IsDate, 
-  IsUUID, 
   IsNumber, 
   IsOptional
 } from 'class-validator';
@@ -45,6 +44,5 @@ export class CreateProjectDto {
   @IsDate({ message: 'ETD must be a valid ISO Date' })
   etd: Date;
 
-  @IsString()
-  pmId: string;
+  
 }

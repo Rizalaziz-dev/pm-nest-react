@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Patch, Param, Delete, UseGuards, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Patch, Param, Delete, UseGuards, ForbiddenException, Request} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProcessName } from '@prisma/client';
@@ -11,12 +11,12 @@ export class ProjectsController {
 
   // 2. CREATE PROJECT (POST /projects)
 @Post('project')
-  create(@Body() createProjectDto: CreateProjectDto) {
+  create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
     // The @Body() decorator uses class-validator to check the data 
     // BEFORE this function even runs. If data is bad, it throws 400 Bad Request.
     
     // Pass the valid data to the service
-    return this.projectsService.createProject(createProjectDto);
+    return this.projectsService.createProject(createProjectDto, req.user);
   }
 
   // --- NEW: THE OPERATOR POOL ---
