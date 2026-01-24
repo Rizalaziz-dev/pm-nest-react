@@ -39,6 +39,7 @@ export default function CreateProjectForm({ onSubmit, initialData }: Props) {
     }, [initialData, reset]);
 
     return (
+        <>
         <form 
             id="create-project-form" 
             onSubmit={handleSubmit(onSubmit)} 
@@ -130,5 +131,6 @@ export default function CreateProjectForm({ onSubmit, initialData }: Props) {
 
             
         </form>
+        </>
     );
 }

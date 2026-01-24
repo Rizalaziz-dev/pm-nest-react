@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { Sidebar } from '../components/ui/sidebar';
+import { Sidebar } from '../components/ui/Sidebar';
 import { useAuth } from '../features/auth/hooks/useAuth'; 
 import { MENU_ITEMS, getMyWorkspace } from '../config/navigation';
 

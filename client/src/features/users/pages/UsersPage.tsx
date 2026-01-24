@@ -70,13 +70,31 @@ export default function UsersPage() {
     if (!data) return 'No data available';
 
     return (
-        <div>
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+            <div>
+            <h1 className="text-2xl font-bold">Active Users</h1>
+            <p className="text-sm opacity-60">Manage users.</p>
+            </div>
+            <button 
+                    className="btn btn-primary"
+                    onClick={openCreateModal}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        New User
+                    </button>
+            </div>
             <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box max-w-sm">
                     <CreateForm
                     key={selectedUser?.id || 'new'}
                     onSubmit={handleCreateSubmit}
-                    initialData={selectedUser}/>
+                    initialData={selectedUser ? {
+                    name: selectedUser.name,
+                    email: selectedUser.email,
+                    role: selectedUser.role,
+                    password: selectedUser.password,      
+                    confirmPassword: selectedUser.password 
+                } : undefined}/>
                 <div className="modal-action">
                     <button
                     className="btn btn-ghost btn-primary"
@@ -98,11 +116,7 @@ export default function UsersPage() {
                 </div>
 
             </dialog>
-            <button 
-            className="btn btn-primary"
-            onClick={openCreateModal}>
-                Add New User
-            </button>
+            
             <UsersTable 
             users={data}
             onEdit={openEditModal} 

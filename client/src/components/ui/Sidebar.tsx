@@ -85,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ links, userRole, userName, isC
                 title={isCollapsed ? link.label : ""} // Tooltip when collapsed
               >
                 {/* Icon Wrapper */}
-                <span className="flex-shrink-0">{link.icon}</span>
+                <span className="shrink-0">{link.icon}</span>
                 
                 {/* Text Label (Hidden if collapsed) */}
                 {!isCollapsed && <span className="whitespace-nowrap">{link.label}</span>}

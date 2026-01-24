@@ -9,7 +9,7 @@ import { LoginFormData } from "../schemas/login.schemas";
 const ROLE_REDIRECTS: Record<string, string> = {
     // Management
     ADMIN: '/admin/users',
-    PM: '/manager/overview',
+    PM: '/manager/projects',
     
     // The Specialist Engineers
     OPERATOR_BREAKDOWN: '/dashboard/breakdown',

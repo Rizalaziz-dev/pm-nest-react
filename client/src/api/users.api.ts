@@ -1,3 +1,4 @@
+import { UserEntity } from "../features/auth/schemas/register.schemas";
 import { User } from "../features/users/types/user.types";
 import { aptFetch } from "./client";
 
@@ -10,9 +11,10 @@ export const createUser = (newUser: CreateUserDTO) => {
     })
 }
 
-export const getUsers = () => {
-    return aptFetch<User[]>('/users');
-}
+export const getUsers = async (): Promise<UserEntity[]> => {
+    const response = await aptFetch('/users');
+    return response as UserEntity[]; // Force the type
+};
 
 export const updateUser = (user: User) => {
     

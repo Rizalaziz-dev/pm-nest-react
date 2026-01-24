@@ -40,9 +40,11 @@ export default function LoginPage() {
      // Redirect based on role
      if (userRole === 'ADMIN') {
             navigate('/admin/users');
+        } else if(userRole === 'PM') {
+            navigate('/manager/projects');
         } else {
             // Default operator view
-            navigate('/dashboard/operator');
+            navigate('/manager/projects');
         }
 
     // catch the error from ./api/client/ts

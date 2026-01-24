@@ -9,7 +9,7 @@ import z from "zod";
 
 interface Props {
     onSubmit: (users: RegisterFormData) => void
-    initialData?: z.infer<typeof userCoreSchema> | null;
+    initialData?: RegisterFormData | null;
 }
 
 export default function CreateForm({onSubmit, initialData}: Props) {

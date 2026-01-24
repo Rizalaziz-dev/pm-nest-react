@@ -5,7 +5,7 @@ export interface Project {
   id: string;
   assyNumber: string;
   customer: string;
-  totalPo: string;
+  totalPo: number;
   
   // Status
   productionStage: string;    // e.g. "PLANNING", "PP", "HOUSING"

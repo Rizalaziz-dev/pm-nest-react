@@ -1,9 +1,9 @@
 import { User } from "../types/user.types"
-
+import { UserEntity } from "../../auth/schemas/register.schemas"
 
 interface Props {
-    users: User[]
-    onEdit: (user: User) => void
+    users: UserEntity[]
+    onEdit: (user: UserEntity) => void
     onDelete: (id: string) => void
     // onCreate: (users: CreatUserDto) => void
 }

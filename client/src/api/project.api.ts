@@ -1,10 +1,10 @@
-import { ProjectEntity } from "../features/projects/schemas/project.schemas";
-import { Project } from "../features/projects/types/types.project";
+import { CreateProjectFormData, ProjectEntity } from "../features/projects/schemas/project.schemas";
+import { Project } from "../features/projects/types/project.types";
 import { aptFetch } from "./client";
 
-export type CreateProjectDTO = Omit<Project, 'id'>;
+// export type CreateProjectDTO = Omit<Project, 'id'>;
 
-export const createProject = (dto: CreateProjectDTO) => {
+export const createProject = (dto: CreateProjectFormData) => {
     return aptFetch<Project>('/projects/project', {
         method: 'POST',
         body: JSON.stringify(dto),

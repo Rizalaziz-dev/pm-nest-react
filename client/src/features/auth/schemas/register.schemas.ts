@@ -41,4 +41,27 @@ export const registerScheme = userCoreSchema.extend({
 
 // 5. Types
 export type RegisterFormData = z.infer<typeof registerScheme>;
-export type UserEntity = z.infer<typeof userCoreSchema> & { id: string };
+
+
+export interface UserEntity {
+  id: string;
+  name: string;
+  email: string;
+  role: "ADMIN"|
+    "PM"|
+    "REQUESTER"|
+    "PRODUCTION_LEAD"|
+    "OPERATOR_BREAKDOWN"| 
+    "ENGINEER_JOINT"|
+    "ENGINEER_HOUSING"|
+    "ENGINEER_JIG"|
+    "ENGINEER_VISUAL"|
+    "ENGINEER_JS_ACC"|
+    "ENGINEER_JS_FIN"
+  
+  // ✅ The password field is now included!
+  password: string; 
+  
+  createdAt: string; 
+  updatedAt: string;
+}
