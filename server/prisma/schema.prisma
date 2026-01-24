@@ -104,7 +104,7 @@ model Project {
   id               String          @id @default(cuid(2))
   assyNumber       String          @unique // "821-4402-AB"
   customer         String          
-  totalPo          String          
+  totalPo          Int          
   
   // CONFIGURATION
   plotting         ProjectType     @default(REGULAR)

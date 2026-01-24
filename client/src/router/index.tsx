@@ -5,6 +5,7 @@ import UsersPage from "../features/users/pages/UsersPage";
 import MainLayout from "../layout/MainLayout";
 import OperatorPage from "../features/dashboard/pages/OperatorPage";
 import { PublicOnlyRoute } from "./PublicOnlyRoute";
+import ProjectsPage from "../features/projects/pages/ProjectPage";
 
 
 export const router = createBrowserRouter([
@@ -64,4 +65,19 @@ export const router = createBrowserRouter([
         }
     ]
   },
+
+
+  // PM Page
+  {
+    path: '/manager',
+    element: <MainLayout />, // Re-use the layout
+    children: [
+        {
+            path: 'projects',
+            element: <ProjectsPage />
+        },
+        // We will build this next:
+        // { path: 'projects/new', element: <CreateProjectPage /> }
+    ]
+}
 ]);

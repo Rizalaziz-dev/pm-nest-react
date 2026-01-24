@@ -4,7 +4,8 @@ import {
   IsEnum, 
   IsDate, 
   IsNumber, 
-  IsOptional
+  IsOptional,
+  IsInt
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ProjectScope, ProjectType } from '@prisma/client'; // Import Enum from Prisma
@@ -18,9 +19,9 @@ export class CreateProjectDto {
   @IsNotEmpty({ message: 'Customer Name is required' })
   customer: string;
 
-  @IsString()
+  @IsInt()
   @IsNotEmpty()
-  totalPo: string;
+  totalPo: number;
 
   // Validates that the value is strictly "REGULAR" or "PROTOTYPE"
   @IsEnum(ProjectType, { message: 'Plotting must be REGULAR or PROTOTYPE' })
@@ -44,5 +45,7 @@ export class CreateProjectDto {
   @IsDate({ message: 'ETD must be a valid ISO Date' })
   etd: Date;
 
-  
+  @IsString()
+  @IsOptional() 
+  pmId?: string;
 }

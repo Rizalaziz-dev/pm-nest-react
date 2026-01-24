@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Query, Patch, Param, Delete, UseGuards, ForbiddenException, Request} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Patch, Param, Delete, UseGuards, ForbiddenException, Request, UnauthorizedException} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProcessName } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('projects')
+@UseGuards(JwtAuthGuard)
 export class ProjectsController {
   // 1. DEPENDENCY INJECTION
   // This automatically gives us the "Worker" (Service) to use.
@@ -13,8 +15,16 @@ export class ProjectsController {
 @Post('project')
   create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
     // The @Body() decorator uses class-validator to check the data 
-    // BEFORE this function even runs. If data is bad, it throws 400 Bad Request.
     
+    // Safety check
+    if (!req.user) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    const pmUser = {
+      ...req.user,
+      id: req.user.id || req.user.sub, // Handle different token structures
+    }
     // Pass the valid data to the service
     return this.projectsService.createProject(createProjectDto, req.user);
   }
