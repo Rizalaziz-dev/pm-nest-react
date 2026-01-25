@@ -3,7 +3,7 @@ import { createUser, CreateUserDTO, deleteUser, getUsers, updateUser } from "../
 
 
 // Service Hook Methode
-export function useUser() {
+export function useUsers() {
     const queryClient = useQueryClient();
 
     const usersQuery = useQuery ({

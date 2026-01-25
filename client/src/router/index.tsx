@@ -6,6 +6,7 @@ import MainLayout from "../layout/MainLayout";
 import OperatorPage from "../features/dashboard/pages/OperatorPage";
 import { PublicOnlyRoute } from "./PublicOnlyRoute";
 import ProjectsPage from "../features/projects/pages/ProjectsPage";
+import OperatorBreakdownPage from "../features/projects/pages/OperatorBreakdownPage";
 
 
 export const router = createBrowserRouter([
@@ -66,6 +67,10 @@ export const router = createBrowserRouter([
         {
             path: ":slug", 
             element: <OperatorPage />,
+        },
+        {
+            path: "breakdown", 
+            element: <OperatorBreakdownPage />,
         },
         
         // B. Safety Redirect

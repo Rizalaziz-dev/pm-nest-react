@@ -37,14 +37,13 @@ export class ProjectsController {
     return this.projectsService.getOperatorPool(process);
   }
 
-  // --- NEW: BREAKDOWN GATEKEEPER ---
-  // Endpoint: PATCH /projects/:id/breakdown-complete
-  // This will be used later when we build the "Unlock" button
-  /* @Patch(':id/breakdown-complete')
-  markBreakdownComplete(@Param('id') id: string) {
-    return this.projectsService.markBreakdownComplete(id);
-  } 
-  */
+ @Post(':id/distribute')
+    async distributeToEngineers(
+        @Param('id') projectId: string,
+        @Body('operatorIds') operatorIds: string[]
+    ) {
+    return this.projectsService.generateEngineeringTasks(projectId, operatorIds);
+}
   
   // Standard Getters
   @Get()

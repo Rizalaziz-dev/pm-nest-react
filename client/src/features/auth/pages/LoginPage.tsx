@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import LoginForm from "../components/LoginForm";
 import { useLogin } from "../hooks/useLogin";
 import { LoginFormData, loginScheme } from "../schemas/login.schemas";
+import { ROLE_DEFAULT_PATH } from "../../../config/navigation";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -37,15 +38,18 @@ export default function LoginPage() {
 
      toast.success(`Welcome back, ${userName}!`);
 
+     const redirectPath = ROLE_DEFAULT_PATH[userRole] || '/manager/projects'; // The || is a fallback safety net
+      navigate(redirectPath);
+
      // Redirect based on role
-     if (userRole === 'ADMIN') {
-            navigate('/admin/users');
-        } else if(userRole === 'PM') {
-            navigate('/manager/projects');
-        } else {
-            // Default operator view
-            navigate('/manager/projects');
-        }
+    //  if (userRole === 'ADMIN') {
+    //         navigate('/admin/users');
+    //     } else if(userRole === 'PM') {
+    //         navigate('/manager/projects');
+    //     } else {
+    //         // Default operator view
+    //         navigate('/manager/projects');
+    //     }
 
     // catch the error from ./api/client/ts
     }catch (err:any) {

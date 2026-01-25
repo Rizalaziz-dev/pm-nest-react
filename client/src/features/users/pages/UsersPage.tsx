@@ -2,13 +2,13 @@ import { useRef, useState } from "react";
 import { useRegister } from "../../auth/hooks/useRegister";
 import CreateForm from "../components/CreateForm";
 import { UsersTable } from "../components/UsersTable";
-import { useUser } from "../hooks/useUser";
+import { useUsers } from "../hooks/useUsers";
 import { toast } from 'react-hot-toast'
 import { RegisterFormData, UserEntity } from "../../auth/schemas/register.schemas";
 
 export default function UsersPage() {
     const [selectedUser, setSelectedUser] = useState<UserEntity | null>(null);
-    const { data, isPending, updateUser, deleteUser } = useUser();
+    const { data, isPending, updateUser, deleteUser } = useUsers();
     const { isLoading, registerUser } = useRegister();
     // the Ref (specifically for a HTMLDialogElement)
     const modalRef=useRef<HTMLDialogElement>(null);
@@ -43,6 +43,7 @@ export default function UsersPage() {
                 onSuccess: () => {
                     toast.success('User created succesfully',{id: loadingToast} )
                     modalRef.current?.close();
+                    setSelectedUser(null);
                 },
                 onError: (err: any) => {
                 toast.error(err.message || "Creation failed", { id: loadingToast });

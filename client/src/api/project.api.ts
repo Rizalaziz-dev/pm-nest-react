@@ -3,6 +3,10 @@ import { Project } from "../features/projects/types/project.types";
 import { aptFetch } from "./client";
 
 // export type CreateProjectDTO = Omit<Project, 'id'>;
+export interface DistributeWorkOrderDto {
+    projectId: string;
+    operatorIds: string[]; // The array of 6 engineer IDs
+}
 
 export const createProject = (dto: CreateProjectFormData) => {
     return aptFetch<Project>('/projects/project', {
@@ -26,5 +30,13 @@ export const updateProject = (project: Project) => {
 export const deleteProject = (id: string) => {
     return aptFetch<void>(`/projects/${id}`, {
         method: 'DELETE',
+    });
+}
+
+export const distributeToEngineers = (dto: DistributeWorkOrderDto) => {
+    // Hits the POST /projects/:id/distribute endpoint
+    return aptFetch(`/projects/${dto.projectId}/distribute`, {
+        method: 'POST',
+        body: JSON.stringify({ operatorIds: dto.operatorIds }),
     });
 }

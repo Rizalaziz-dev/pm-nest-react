@@ -26,7 +26,7 @@ export function ProjectsTable({ projects, onDetails }: Props) {
                             {/* 1. Identity */}
                             <td>
                                 <div className="font-bold">{project.assyNumber}</div>
-                                <div className="text-xs opacity-50">{project.totalPo}</div>
+                                <div className="text-xs opacity-50">Jumlah PO: {project.totalPo}</div>
                             </td>
 
                             {/* 2. Customer */}

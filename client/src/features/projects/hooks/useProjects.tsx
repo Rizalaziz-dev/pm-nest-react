@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createProject, getProjects, updateProject, deleteProject } from "../../../api/project.api";
+import { distributeToEngineers } from "../../../api/project.api";
 
 
 // Service Hook Methode
@@ -33,6 +34,13 @@ export function useProjects() {
         },
     });
 
+    const distributeToEngineersMutation = useMutation({
+        mutationFn: distributeToEngineers,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+        },
+    });
+
     return {
         // Query State
         data: projectQuery.data,
@@ -48,6 +56,8 @@ export function useProjects() {
 
         deleteProject: deleteProjectMutation.mutate,
         isDeleting: deleteProjectMutation.isPending,
+
+        distributeToEngineers: distributeToEngineersMutation.mutate,
     
     };
 }

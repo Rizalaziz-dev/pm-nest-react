@@ -68,7 +68,7 @@ export class ProjectsService {
   // 2. THE LOGIC ENGINE (PHASE 2: Triggers when Breakdown is Done)
   // ===========================================================================
   // Call this when Operator Breakdown clicks "Complete"
-  async generateEngineeringTasks(projectId: string) {
+  async generateEngineeringTasks(projectId: string, operatorIds?: string[]) {
 
     // A. GET PROJECT CONTEXT
     const project = await this.prisma.project.findUnique({
@@ -120,32 +120,38 @@ export class ProjectsService {
             data: [
                 { 
                   projectId, 
+                  assignedUserId: operatorIds ? operatorIds[0] : null,
                   processName: ProcessName.JOINT_DRAWING, 
                   status: 'PENDING', 
                   ...createDates(breakdownFinishDate, rules.joint) },
                 { 
                   projectId, 
+                  assignedUserId: operatorIds ? operatorIds[1] : null,
                   processName: ProcessName.HOUSING_DRAWING, 
                   status: 'PENDING', 
                   ...housingDates },
                 // Jig depends on Housing target
                 { 
                   projectId, 
+                  assignedUserId: operatorIds ? operatorIds[2] : null,
                   processName: ProcessName.JIG_DRAWING, 
                   status: 'PENDING', 
                   ...createDates(housingDates.targetDate, rules.jig_offset) },
                 { 
                   projectId, 
+                  assignedUserId: operatorIds ? operatorIds[3] : null,
                   processName: ProcessName.JOB_STATION_ACC, 
                   status: 'PENDING', 
                   ...createDates(breakdownFinishDate, rules.acc) },
                 { 
                   projectId, 
+                  assignedUserId: operatorIds ? operatorIds[4] : null,
                   processName: ProcessName.VISUAL_DRAWING, 
                   status: 'PENDING', 
                   ...createDates(breakdownFinishDate, rules.visual) },
                 { 
                   projectId, 
+                  assignedUserId: operatorIds ? operatorIds[5] : null,
                   processName: ProcessName.JOB_STATION_FINISHING, 
                   status: 'PENDING', 
                   ...createDates(breakdownFinishDate, rules.finish) },
@@ -155,6 +161,16 @@ export class ProjectsService {
         this.prisma.workOrder.updateMany({
             where: { projectId, processName: 'BREAKDOWN' },
             data: { status: 'COMPLETED', completedAt: new Date() }
+        }),
+        // 3. Update Project Status to PP
+        this.prisma.project.update({
+            where: { id: projectId },
+            data: { 
+                breakdownFinishDate: new Date(),
+                engineeringStatus: 'PENDING',
+                productionStage: 'PP'
+
+            }
         })
     ]);
   }

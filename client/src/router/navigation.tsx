@@ -4,6 +4,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
   { label: 'User Management', path: '/users', icon: <Users size={20} /> },
   { label: 'System Settings', path: '/settings', icon: <Settings size={20} /> },
+  { label: 'Operator Breakdown', path: '/operator-breakdown', icon: <Settings size={20} /> },
 ];
 
 export const OPERATOR_NAV: NavItem[] = [
