@@ -71,7 +71,6 @@ enum WorkOrderStatus {
   IN_PROGRESS     // In Operator's "Cart"
   COMPLETED
   BLOCKED         // Issue reported
-  REWORK
 }
 
 enum AssetType {
@@ -116,7 +115,7 @@ model Project {
   etd              DateTime
   
   // STATUS TRACKING
-  engineeringStatus String         @default("IN_PROGRESS") 
+  engineeringStatus WorkOrderStatus @default(LOCKED)
   productionStage  ProductionStage @default(PLANNING)
   
   // LOGIC: When does Phase 2 (Engineering) actually start?

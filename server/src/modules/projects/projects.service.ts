@@ -46,7 +46,7 @@ export class ProjectsService {
         pm: { connect: { id: user.id } },
 
         productionStage: ProductionStage.PLANNING, // Default start
-        engineeringStatus: 'IN_PROGRESS',
+        engineeringStatus: 'LOCKED',
 
         workOrders: {
           create: [
