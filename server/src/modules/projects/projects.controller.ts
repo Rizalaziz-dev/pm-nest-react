@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Query, Patch, Param, Delete, UseGuards, ForbiddenException, Request, UnauthorizedException} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Patch, Param, Delete, UseGuards, ForbiddenException, Request, UnauthorizedException, ParseArrayPipe} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProcessName } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { User } from '../auth/decorators/user.decorator';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -45,6 +46,15 @@ export class ProjectsController {
     return this.projectsService.generateEngineeringTasks(projectId, operatorIds);
 }
   
+
+@Post('bulk')
+async createBulk(
+  @Body(new ParseArrayPipe({ items: CreateProjectDto })) dtos: CreateProjectDto[],
+  @User('id') pmId: string, // Assuming you have a custom decorator to get the logged-in user
+) {
+  return this.projectsService.createBulk(dtos, pmId);
+}
+
   // Standard Getters
   @Get()
   findAll() {

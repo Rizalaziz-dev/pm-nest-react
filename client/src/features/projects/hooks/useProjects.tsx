@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createProject, getProjects, updateProject, deleteProject } from "../../../api/project.api";
+import { createProject, getProjects, updateProject, deleteProject, createBulkProjects} from "../../../api/project.api";
 import { distributeToEngineers } from "../../../api/project.api";
 
 
@@ -15,6 +15,13 @@ export function useProjects() {
 
     const createProjectMutation = useMutation({
         mutationFn: createProject,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+        },
+    });
+
+    const createBulkMutation = useMutation({
+        mutationFn: createBulkProjects,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['projects'] });
         },
@@ -58,6 +65,9 @@ export function useProjects() {
         isDeleting: deleteProjectMutation.isPending,
 
         distributeToEngineers: distributeToEngineersMutation.mutate,
+
+        createBulkProjects: createBulkMutation.mutate, 
+        isCreatingBulk: createBulkMutation.isPending
     
     };
 }

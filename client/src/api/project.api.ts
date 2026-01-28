@@ -15,6 +15,13 @@ export const createProject = (dto: CreateProjectFormData) => {
     });
 }
 
+export const createBulkProjects = (projects: CreateProjectFormData[]) => {
+    return aptFetch<ProjectEntity[]>('/projects/bulk', {
+        method: 'POST',
+        body: JSON.stringify(projects),
+    });
+}
+
 export const getProjects = async (): Promise<ProjectEntity[]> => {
     const response = await aptFetch('/projects');
     return response as ProjectEntity[];

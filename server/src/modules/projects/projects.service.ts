@@ -6,7 +6,8 @@ import {
   ProductionStage, 
   ProjectScope, 
   WorkOrderStatus,
-  User 
+  User,
+  Project
 } from '@prisma/client';
 
 @Injectable()
@@ -53,7 +54,7 @@ export class ProjectsService {
             // 1. BREAKDOWN (Gatekeeper)
             { 
               processName: ProcessName.BREAKDOWN,
-              status: WorkOrderStatus.PENDING,
+              status: WorkOrderStatus.LOCKED,
               targetDate: breakdownTarget,
               hardDeadline: breakdownTarget // No buffer for gatekeeper
             }
@@ -321,4 +322,53 @@ export class ProjectsService {
       }
     });
   }
+
+  async createBulk(dtos: CreateProjectDto[], pmId: string) {
+  // ⚡ START TRANSACTION
+  return this.prisma.$transaction(async (tx) => {
+    const createdProjects: Project[] = [];
+
+    for (const dto of dtos) {
+      // 1. Create the Project
+
+      const existing = await tx.project.findUnique({
+          where: { assyNumber: dto.assyNumber }
+        });
+
+        if (existing) {
+          console.log(`Skipping duplicate: ${dto.assyNumber}`);
+          continue; // ⏩ Jump to the next iteration
+        }
+      const project = await tx.project.create({
+        data: {
+          ...dto,
+          pmId, // Connect the Project Manager who uploaded the file
+          engineeringStatus: 'LOCKED', 
+          productionStage: 'PLANNING',
+          
+          // Ensure dates are valid Date objects (CSV sends strings)
+          orderDate: new Date(dto.orderDate),
+          etd: new Date(dto.etd),
+        },
+      });
+
+      // 2. Automatically Create the Breakdown Ticket
+      // (Just like we did for the single project creation)
+      await tx.workOrder.create({
+        data: {
+          projectId: project.id,
+          processName: 'BREAKDOWN',
+          status: 'PENDING',
+          targetDate: new Date(), 
+          hardDeadline: new Date(),
+          // assignedUserId is left NULL for the "Grab Board" logic
+        },
+      });
+
+      createdProjects.push(project);
+    }
+
+    return createdProjects; // Returns the list of all 50 new projects
+  });
+}
 }
