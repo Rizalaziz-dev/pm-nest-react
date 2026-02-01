@@ -6,6 +6,7 @@ interface Props {
     // We can add onEdit and onDelete here later just like UsersTable!
 }
 
+
 export function ProjectsTable({ projects, onDetails }: Props) {
     return (
         <div className="overflow-x-auto">

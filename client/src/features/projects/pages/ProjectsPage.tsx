@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useProjects } from "../hooks/useProjects";
 import { ProjectsTable } from "../components/ProjectsTable";
 import { CreateProjectFormData, ProjectEntity } from "../schemas/project.schemas";
@@ -10,6 +10,7 @@ import BulkUploadForm from "../components/BulkUploadForm";
 
 
 export default function ProjectsPage() {
+  const navigate = useNavigate();
   const { data: projects, isPending, isError, createProject, updateProject, isCreating, createBulkProjects, isCreatingBulk } = useProjects();
   const [selectedProject, setSelectedProject] = useState<ProjectEntity | null>(null);
     
@@ -78,14 +79,11 @@ export default function ProjectsPage() {
         });
     };
     
-  
-
-
-  // Handler for the "Details" button inside the table
+    // Handler for the "Details" button inside the table
   const handleDetails = (project: ProjectEntity) => {
     console.log("View details for:", project.assyNumber);
     // You could open a modal here, or navigate to a details page:
-    // navigate(`/manager/projects/${project.id}`);
+    navigate(`/manager/projects/${project.id}`);
   };
 
 

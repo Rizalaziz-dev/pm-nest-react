@@ -7,7 +7,7 @@ import OperatorPage from "../features/dashboard/pages/OperatorPage";
 import { PublicOnlyRoute } from "./PublicOnlyRoute";
 import ProjectsPage from "../features/projects/pages/ProjectsPage";
 import OperatorBreakdownPage from "../features/projects/pages/OperatorBreakdownPage";
-
+import ProjectsDetailsPage from "../features/projects/components/ProjectDetailsPage";
 
 export const router = createBrowserRouter([
   // 1. Public Only Routes (Login / Register)
@@ -45,17 +45,6 @@ export const router = createBrowserRouter([
     ]
   },
 
-  {
-    path: '/manager', 
-    element: <MainLayout />, // Ensure MainLayout handles the Admin Sidebar
-    children: [
-        {
-            path: "projects",
-            element: <ProjectsPage />,
-        },
-           ]
-  },
-
   // 3. The Dynamic Dashboard Routes
   {
     path: '/dashboard', 
@@ -91,6 +80,10 @@ export const router = createBrowserRouter([
         {
             path: 'projects',
             element: <ProjectsPage />
+        },
+        {
+            path: 'projects/:id',
+            element: <ProjectsDetailsPage />
         },
         // We will build this next:
         // { path: 'projects/new', element: <CreateProjectPage /> }

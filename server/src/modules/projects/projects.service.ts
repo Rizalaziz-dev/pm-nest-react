@@ -280,7 +280,16 @@ export class ProjectsService {
   async findOne(id: string) {
     return this.prisma.project.findUnique({
       where: { id },
-      include: { workOrders: true, revisions: true }
+      include: { 
+        pm: true,
+        workOrders: {
+          include: { assignedUser: true 
+
+          },
+          orderBy: { 
+            processName: 'asc' }
+        }
+      }
     });
   }
 

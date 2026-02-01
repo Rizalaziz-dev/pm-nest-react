@@ -27,6 +27,11 @@ export const getProjects = async (): Promise<ProjectEntity[]> => {
     return response as ProjectEntity[];
    
 }
+
+export const getProjectById = async (id: string): Promise<Project> => {
+    const response = await aptFetch(`/projects/${id}`);
+    return response as Project;
+}
 export const updateProject = (project: Project) => {
     return aptFetch<Project>(`/projects/${project.id}`, {
         method: 'PATCH',
